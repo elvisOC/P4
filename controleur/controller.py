@@ -1,3 +1,5 @@
+from P4.modeles.models import Player
+from P4.vue.view import View
 import json
 import os
 import pandas as pd
@@ -9,17 +11,10 @@ parent_directory = pathlib.Path(__file__).parent.resolve()
 directory = os.path.expandvars(fr'C:\Users\%username%\Desktop\openclassrooms\P4\data\player')
 file_path = os.path.join(directory, 'players.json')
 
+class Controleur:
+    def __init__(self):
+        self.joueurs = 
 
-
-
-class Player:
-    def __init__(self, national_id, name, surname, birthdate, file_path):
-        self.national_id = national_id
-        self.name = name
-        self.surname = surname
-        self.birthdate = birthdate
-        self.file_path = file_path
-        
     def verifie_file(self):
         if os.path.exists(self.file_path) and os.path.getsize(self.file_path) > 0:
             with open (self.file_path, 'r', encoding='utf-8') as file:
@@ -67,6 +62,12 @@ class Player:
             except json.JSONDecodeError:
                 return "Problème avec le fichier"
             
+            
+    def creer_tournoi(self):
+        infos = View.menu_tournoi()
+        
+        
+        
 new_player = Player(national_id='AC12345', name='test', surname='moi', birthdate='31-07-1994', file_path=file_path)
 result = new_player.afficher_liste_player()
 print(result)
