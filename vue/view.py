@@ -37,12 +37,17 @@ class View:
         start_date = input("Date de début (JJ-MM-AAAA) : ")
         end_date = input("Date de fin (JJ-MM-AAAA) : ")
         number_of_rounds = int(input(f"Nombre de tours (4 par defaut) : "))
-        current_round = 0
         description = input("Description : ")
-        return name, location, start_date, end_date, number_of_rounds, current_round, description
+        players_nbr = int(input("Nombre de joueurs : "))
+        list_player = View.menu_liste_players(players_nbr)
+        return name, location, start_date, end_date, number_of_rounds, description, players_nbr, list_player
     
     def menu_quitter():
         print("Au revoir !")
         
-    def menu_liste_players():
-        print("Liste Joueurs : ")
+    def menu_liste_players(players_nbr):
+        list_player = []
+        for nbr in range(1, players_nbr + 1):  
+            player = input(f"Identifiant joueur{nbr} : ")
+            list_player.append(player)
+        return list_player

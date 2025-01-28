@@ -46,7 +46,10 @@ class Tournoi:
     date_fin : str
     nb_tours : int 
     description : str
+    players : dict
+    rounds : dict
     current_round : int = 0
+
     
     def __post_init__(self):
         
@@ -74,7 +77,9 @@ class Tournoi:
             "end_date" : self.date_fin,
             "number_of_rounds" : self.nb_tours,
             "current_round" : self.current_round,
-            "description" : self.description
+            "description" : self.description,
+            "players" : self.players,
+            "rounds" : self.rounds
         }
         
         
@@ -104,7 +109,7 @@ class DAO:
         parent_directory = pathlib.Path(__file__).parent.resolve()
         directory = parent_directory.parent
         file_path = os.path.join(directory, "data", file_name)
-        with open(file_path, 'w', encoding='utf-8') as file:
+        with open(file_path, 'w') as file:
             json.dump(data, file, indent=4, ensure_ascii=False)
             
 #print(DAO.charger_file('players.json'))
