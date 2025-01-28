@@ -17,7 +17,7 @@ directory = actual_directory.parent
 class Controleur:
     def __init__(self):
         self.joueurs = DAO.charger_file("players.json") or []
-        self.tournoi = DAO.charger_file("tournoi.json") or []
+        self.tournois = DAO.charger_file("tournois.json") or []
         
     def addplayer(self):
         infos = View.menu_creation_joueur()
@@ -33,15 +33,32 @@ class Controleur:
             except ValueError as e:
                 print(f"{e}")
         
-            
-    def afficher_liste_player(self, player_path):
+    def afficher_liste_player(self):
         data = self.joueurs
         data = [v for v in data.values()]
-        sorted_data = sorted(data, key=itemgetter('name'))
+        sorted_data = sorted(data, key=itemgetter('Surname'))
         return tabulate(sorted_data, headers="keys", tablefmt="grid")
             
     def creer_tournoi(self):
         infos = View.menu_creation_tournoi()
-        tournoi = Tournoi(*infos)
+        try :
+            tournoi = Tournoi(*infos)
+            self.tournois = tournoi.to_dict()
+            DAO.sauvegarder_file("tournois.json", self.tournois)
+            print("Tournoi enregistré")
+        except ValueError as e:
+            print(f"{e}")
         
+    def afficher_liste_tournoi(self):
+        data = self.tournois
+        data = [
+            {"name" : data["name"],
+             "Date_debut": data["start_date"],
+             "Date_fin" : data["end_date"]
+            }
+            for data in data.values()]
+        sorted_data = sorted(data, key=itemgetter("name"))
+        return tabulate(sorted_data, headers="keys", tablefmt="grid")
+    
+    
 #print(Controleur.__init__())

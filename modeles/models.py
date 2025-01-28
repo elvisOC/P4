@@ -18,13 +18,13 @@ class Player:
         
     def __post_init__(self):
         
-        if not re.match(r"^[A-Za-z][A-Za-z]\d\d\d\d\d$", self.identifiant):
+        if not re.match(r"^[A-Z][A-Z]\d\d\d\d\d$", self.identifiant):
             raise ValueError("L'identifiant n'est pas au bon format")
         
-        if not self.name or not isinstance(self.surname, str):
+        if not self.surname or not isinstance(self.surname, str):
             raise ValueError("Le prénom doit être une chaine non vide")
         
-        if not self.surname or not isinstance(self.name, str):
+        if not self.name or not isinstance(self.name, str):
             raise ValueError("Le nom doit être une chaine non vide")
         
         if not re.match(r"\d\d-\d\d-\d\d\d\d$", self.birthdate):
@@ -38,16 +38,45 @@ class Player:
             "Birthdate" : self.birthdate
         }
             
-        
+@dataclass
 class Tournoi:
-    def __init__(self, nom, lieu, date_debut, date_fin, nb_tours, joueurs, tours):
-        self.nom = nom
-        self.lieu = lieu
-        self.date_debut = date_debut
-        self.date_fin = date_fin
-        self.nb_tours = nb_tours
-        self.joueurs = []
-        self.tours = []
+    name : str
+    location : str
+    date_debut : str
+    date_fin : str
+    nb_tours : int 
+    description : str
+    current_round : int = 0
+    
+    def __post_init__(self):
+        
+        if not self.name or not isinstance(self.name, str):
+            raise ValueError("Le nom doit être une chaine non vide")
+        if not self.location or not isinstance(self.location, str):
+            raise ValueError("Le lieu doit être une chaine non vide")
+        if not re.match(r"\d\d-\d\d-\d\d\d\d$", self.date_debut):
+            raise ValueError("La date de début n'est pas au bon format JJ-MM-AAAA")
+        if not re.match(r"\d\d-\d\d-\d\d\d\d$", self.date_fin):
+            raise ValueError("La date de fin n'est pas au bon format JJ-MM-AAAA")
+        if self.nb_tours is None:
+            self.nb_tours = 4
+        if not isinstance(self.nb_tours, int):
+            raise ValueError("Le nombres de tours doit être en chiffre")
+        if not self.description or not isinstance(self.description, str):
+            raise ValueError("La description doit être une chaine non vide")
+        
+        
+    def to_dict(self):
+        return {
+            "name" : self.name,
+            "location" : self.location,
+            "start_date" : self.date_debut,
+            "end_date" : self.date_fin,
+            "number_of_rounds" : self.nb_tours,
+            "current_round" : self.current_round,
+            "description" : self.description
+        }
+        
         
 class Tours:
     def __init__(self, numero, start, finish, match):

@@ -71,16 +71,6 @@ print (result)
                 return tabulate(sorted_data, headers="keys", tablefmt="grid")
             except json.JSONDecodeError:
                 return "Problème avec le fichier"
- 
-        
-       
-        
-def liste_joueurs(file_path):
-    with open (file_path, 'r', encoding='utf-8') as file:
-        data = json.load(file)
-    data_list = [v for v in data.values()]
-    sorted_data = sorted(data_list, key=itemgetter('name'))
-    return tabulate(sorted_data, headers="keys", tablefmt="grid")
 
 print(liste_joueurs(file_path))
 
@@ -92,3 +82,4 @@ if re.match(r"[A-Za-z][A-Za-z]\d\d\d\d\d", identifiant):
 else:
     print("Mauvais format")
             
+fes<feswfes

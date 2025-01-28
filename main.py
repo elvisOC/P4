@@ -17,13 +17,14 @@ def main():
             second_choix = View.menu_tournoi()
             if second_choix == "1":
                 controleur.creer_tournoi()
-                    
+            if second_choix == "2":
+                print(controleur.afficher_liste_tournoi())
         elif choix == "2":
             second_choix = View.menu_joueur()
             if second_choix == "1":
                 print(controleur.addplayer())
             elif second_choix == "2":
-                print(controleur.afficher_liste_player(player_path))
+                print(controleur.afficher_liste_player())
             elif second_choix == "3":
                 break
                     

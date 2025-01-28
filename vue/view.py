@@ -32,14 +32,14 @@ class View:
         return identifiant, surname, name, birthdate
     
     def menu_creation_tournoi():
-        nom = input("Nom du tournoi : ")
-        lieu = input("Lieu du tournoi : ")
-        date_debut = input("Date de début : ")
-        date_fin = input("Date de fin : ")
-        nb_tour = input("Nombre de tours")
-        tour_actuel = 0
+        name = input("Nom du tournoi : ")
+        location = input("Lieu du tournoi : ")
+        start_date = input("Date de début (JJ-MM-AAAA) : ")
+        end_date = input("Date de fin (JJ-MM-AAAA) : ")
+        number_of_rounds = int(input(f"Nombre de tours (4 par defaut) : "))
+        current_round = 0
         description = input("Description : ")
-        return nom, lieu, date_debut, date_fin, nb_tour, tour_actuel, description
+        return name, location, start_date, end_date, number_of_rounds, current_round, description
     
     def menu_quitter():
         print("Au revoir !")
