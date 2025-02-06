@@ -48,7 +48,7 @@ class Tournoi:
     description : str
     players : dict
     rounds : dict
-    current_round : int = 0
+    current_round : int = 1
 
     
     def __post_init__(self):
@@ -57,9 +57,9 @@ class Tournoi:
             raise ValueError("Le nom doit être une chaine non vide")
         if not self.location or not isinstance(self.location, str):
             raise ValueError("Le lieu doit être une chaine non vide")
-        if not re.match(r"\d\d-\d\d-\d\d\d\d$", self.date_debut):
+        if not self.date_debut or not re.match(r"\d\d-\d\d-\d\d\d\d$", self.date_debut):
             raise ValueError("La date de début n'est pas au bon format JJ-MM-AAAA")
-        if not re.match(r"\d\d-\d\d-\d\d\d\d$", self.date_fin):
+        if not self.date_fin or not re.match(r"\d\d-\d\d-\d\d\d\d$", self.date_fin):
             raise ValueError("La date de fin n'est pas au bon format JJ-MM-AAAA")
         if self.nb_tours is None:
             self.nb_tours = 4
@@ -82,13 +82,34 @@ class Tournoi:
             "rounds" : self.rounds
         }
         
-        
+@dataclass
 class Tours:
-    def __init__(self, numero, start, finish, match):
-        self.numero = numero
-        self.start = start
-        self.finish = finish
-        self.match = match
+    numero : int
+    start_date : str
+    end_date :str
+    start_hour : str
+    end_hour : str
+    match : dict
+    
+    def __post_init__(self):
+        if not self.numero or not isinstance(self.numero, int):
+            raise ValueError("Le numero du tour doit être un chiffre non vide")
+        if not self.start_date or not re.match(r'\d\d-\d\d-\d\d\d\d$'):
+            raise ValueError("Vide ou mauvais format. Il doit être au format JJ-MM-AAAA")
+        if not self.end_date or not re.match(r'\d\d-\d\d-\d\d\d\d$'):
+            raise ValueError("Vide ou mauvais format. Il doit être au format JJ-MM-AAAA")    
+        if not self.start_hour or not re.match(r'\d\d:\d\d$'):
+            raise ValueError("L'heure doit être au format HH-MM")
+        if not self.end_hour or not re.match(r'\d\d:\d\d$'):
+            raise ValueError("L'heure doit être au format HH-MM") 
+        
+    def to_dict(self):
+        return {
+            "current_round" : self.numero,
+            "start_time" : self.start_date + self.start_hour,
+            "end_time" : self.end_date + self.end_hour,
+            "matches" : self.match
+        }
         
 class Matchs:
     def __init__(self):
