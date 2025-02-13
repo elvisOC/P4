@@ -65,7 +65,7 @@ class Controleur:
                 list_match.append([[player1, 0.0], [player2, 0.0]])
             round_data = [{
                 "name" : f"Round 1",
-                "start_time": 1,
+                "start_time": datetime.now().isoformat(timespec="minutes"),
                 "end_time": 1,
                 "matches": list_match
                 }]
@@ -87,7 +87,7 @@ class Controleur:
              "Date_fin" : tournoi["end_date"]
             }
             for key, tournoi in data.items()]
-        sorted_data = sorted(data, key=itemgetter("name"))
+        sorted_data = sorted(data, key=lambda x: int(x["ID"]))
         print(tabulate(sorted_data, headers="keys", tablefmt="grid"))
     
     def return_name(self, player_id):
@@ -98,39 +98,17 @@ class Controleur:
                 return f"{name} {surname}"
         return ("Aucun joueur trouvé avec cette ID")
 
-        
-    def creer_round(self, tournoi_id):
+    def finir_round(self, tournoi_id, round_nbr):
+        infos = View
         tournois = self.tournois
-        tournoi = tournois.get(str(tournoi_id))
-        nbr_rounds = tournoi["number_of_rounds"]
-        current_round = tournoi["current_round"]
-        list_players = tournoi["players"]
-        previous_matches = set()
-        list_players.sort(key=lambda x: x[1], reverse=True)
-        list_match = []
-        paired = set()
-        
-        while len(paired) < len(list_players):
-            for i in range(len(list_players)):
-                if list_players[i][0] in paired:
-                    continue
-                for j in range(i + 1, len(list_players)):
-                    if list_players[j][0] in paired:
-                        continue
-                    if (list_players[i][0], list_players[j][0]) not in previous_matches and \
-                    (list_players[j][0], list_players[i][0]) not in previous_matches:
-                        list_match.append([[list_players[i][0], 0.0], [list_players[j][0], 0.0]])
-                        paired.add(list_players[i][0])
-                        paired.add(list_players[j][0])
-                        previous_matches.add((list_players[i][0], list_players[j][0]))
-                        break
-
+        round_nbr = round_nbr - 1
+        print(tournois[f"{tournoi_id}"]["rounds"])
+        round = tournois[f"{tournoi_id}"]["rounds"][round_nbr]
 
     def afficher_current_tournoi(self, tournoi_id):
         tournois = self.tournois
         tournoi = tournois.get(str(tournoi_id))
         return tournoi
-            
             
     def afficher_liste_rounds(self, tournoi_id):
         data = self.tournois.get(str(tournoi_id))
@@ -141,9 +119,23 @@ class Controleur:
             table.append(row)
         headers = ["Round"] + [f"Match {i+1}" for i in range(len(rounds[0]["matches"]))] if rounds else ["Round"]
         print(tabulate(table, headers=headers, tablefmt="grid"))
-            
-    def ajouter_points(self, tournoi_id):
-        tournoi = self.tournois.get(str(tournoi_id))
-        rounds = tournoi.get("rounds, []")
-        round = rounds["rounds"]
+        
+    def afficher_liste_match(self, tournoi_id, round_id):
+        data = self.tournois.get(str(tournoi_id))
+        round_id = int(round_id) - 1
+        matchs = data["rounds"][round_id]["matches"]
+        match_list = [
+        [match[0][0], match[0][1], match[1][0], match[1][1]] 
+        for match in matchs]
+        table = pandas.DataFrame(match_list, columns=['Joueur 1', 'Score 1', 'Joueur 2', 'Score 2'])
+        print(table)
+        
+    def afficher_match(self, tournoi_id, round_id, match_id):
+        data = self.tournois.get(str(tournoi_id))
+        round_id = int(round_id) - 1
+        match_id = int(match_id) - 1
+        match = data["rounds"][round_id]["matches"][match_id]
+        match_data = [[match[0][0], match[0][1]], [match[1][0], match[1][1]]]
+        table = pandas.DataFrame(match_data, columns=['Joueur', 'Score'])
+        print(table)  
         

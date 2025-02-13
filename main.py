@@ -17,13 +17,16 @@ def main():
             if second_choix == "1":
                 controleur.creer_tournoi()
             if second_choix == "2":
-                choix = View.menu_continuer_tournoi()
-                if choix.lower() == "y":
-                    print(View.menu_tournoi_ID())
-                elif choix.lower() == "n":
-                    controleur.afficher_liste_tournoi()
-                    print(View.menu_tournoi_ID())
-                    
+                controleur.afficher_liste_tournoi()
+                tournoi_id = View.menu_tournoi_ID()
+                controleur.afficher_liste_rounds(tournoi_id)
+                round_id = View.menu_rounds()
+                controleur.afficher_liste_match(tournoi_id, round_id)
+                match_id = View.menu_matchs()
+                controleur.afficher_match(tournoi_id, round_id, match_id)
+                resultat = View.resultat()
+                controleur.resultat(tournoi_id, round_id, match_id, resultat)
+                
             if second_choix == "3":
                 controleur.afficher_liste_tournoi()
         elif choix == "2":

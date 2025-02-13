@@ -9,9 +9,8 @@ class View:
     
     def menu_tournoi():
         print("1.Créer tournoi")
-        print("2.Continuer tournoi")
-        print("3.Consulter anciens tournois")
-        print("4.Revenir au menu principal")
+        print("2.Consulter tournois")
+        print("3.Revenir au menu principal")
         return input("Choississez un menu : ")
     
     def menu_joueur():
@@ -53,12 +52,19 @@ class View:
             list_player.append(player)
         return list_player
     
-    def menu_continuer_tournoi():
-        response = input("Connaissez vous l'ID du tournoi ? (Y|n) ")
-        return response
-        
     def menu_tournoi_ID():
-        tournoi_id = input("Entrez l'ID du tournoi : ")
-        return tournoi_id
-        
+        return input("Entrez l'ID du tournoi : ")
+
+    def menu_rounds():
+        return input("Entrez le numéro du round : ")
     
+    def menu_matchs():
+        return input("Selectionner le match : ")
+         
+    def resultat():
+        return input ("Vainqueur ? (1 pour joueur 1, 2 pour joueur 2, 3 pour match nul) : ")
+         
+    def menu_finir_round(match_nbr):
+        list_match = []
+        for match in range(1, match_nbr +1 ):
+            match = input
