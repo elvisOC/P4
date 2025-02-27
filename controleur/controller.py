@@ -12,9 +12,6 @@ from datetime import datetime
 
 actual_directory = pathlib.Path(__file__).parent.resolve()
 directory = actual_directory.parent
-#player_path = os.path.join(parent_directory, '\\data\\player\\players.json')
-#print(parent_directory)
-
 
 
 class Controleur:
@@ -65,8 +62,8 @@ class Controleur:
                 list_match.append([[player1, 0.0], [player2, 0.0]])
             round_data = [{
                 "name" : f"Round 1",
-                "start_time": datetime.now().isoformat(timespec="minutes"),
-                "end_time": 1,
+                "start_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "end_time": None,
                 "matches": list_match
                 }]
             self.tournois[new_tournament_id] = tournoi.to_dict()
@@ -98,13 +95,6 @@ class Controleur:
                 return f"{name} {surname}"
         return ("Aucun joueur trouvé avec cette ID")
 
-    def finir_round(self, tournoi_id, round_nbr):
-        infos = View
-        tournois = self.tournois
-        round_nbr = round_nbr - 1
-        print(tournois[f"{tournoi_id}"]["rounds"])
-        round = tournois[f"{tournoi_id}"]["rounds"][round_nbr]
-
     def afficher_current_tournoi(self, tournoi_id):
         tournois = self.tournois
         tournoi = tournois.get(str(tournoi_id))
@@ -125,17 +115,104 @@ class Controleur:
         round_id = int(round_id) - 1
         matchs = data["rounds"][round_id]["matches"]
         match_list = [
-        [match[0][0], match[0][1], match[1][0], match[1][1]] 
-        for match in matchs]
-        table = pandas.DataFrame(match_list, columns=['Joueur 1', 'Score 1', 'Joueur 2', 'Score 2'])
-        print(table)
+        [i, match[0][0], match[0][1], match[1][0], match[1][1]] 
+        for i, match in enumerate(matchs, start=1)
+        ]
+        table = pandas.DataFrame(match_list, columns=['Match', 'Joueur 1', 'Score 1', 'Joueur 2', 'Score 2'])
+        print(table.to_string(index=False))
         
     def afficher_match(self, tournoi_id, round_id, match_id):
         data = self.tournois.get(str(tournoi_id))
         round_id = int(round_id) - 1
         match_id = int(match_id) - 1
         match = data["rounds"][round_id]["matches"][match_id]
-        match_data = [[match[0][0], match[0][1]], [match[1][0], match[1][1]]]
+        match_data = [
+        [match[0][0], match[0][1]], [match[1][0], match[1][1]]]
         table = pandas.DataFrame(match_data, columns=['Joueur', 'Score'])
-        print(table)  
+        if match[0][1] == 0.0 and match[1][1] == 0.0:
+            print(table.to_string(index=False)) 
+            resultat = View.resultat()
+            self.ajouter_score(tournoi_id, round_id, match_id, resultat)
+        else :
+            print(table.to_string(index=False))
+
+    def ajouter_score(self, tournoi_id, round_id, match_id, resultat):
+        data = self.tournois.get(str(tournoi_id))
+        match = data["rounds"][round_id]["matches"][match_id]
+        resultat = int(resultat)
+        joueurs = {joueur["Name"]: joueur for joueur in data["players"]}
+        if resultat == 1:
+            match[0][1] += 1  
+            match[1][1] += 0  
+        elif resultat == 2:
+            match[0][1] += 0  
+            match[1][1] += 1  
+        elif resultat == 3:
+            match[0][1] += 0.5  
+            match[1][1] += 0.5
+        else:
+            print("Erreur : Valeur invalide pour vainqueur. Utilisez 1, 2 ou 3.")
+        if match[0][0] in joueurs:
+            joueurs[match[0][0]]["points"] += match[0][1]
+        if match[1][0] in joueurs:
+            joueurs[match[1][0]]["points"] += match[1][1]
+        self.verifier_round_fini(tournoi_id, round_id)
+        data["rounds"][round_id]["matches"][match_id] = match
+        self.tournois[str(tournoi_id)] = data
+        DAO.sauvegarder_file("tournois.json", self.tournois)
+        self.afficher_match(tournoi_id, round_id, match_id)
         
+    def verifier_round_fini(self, tournoi_id, round_id):
+        data = self.tournois.get(str(tournoi_id))
+        round_actuel = data["rounds"][round_id]
+        for match in round_actuel["matches"]:
+            if match[0][1] == 0.0 and match[1][1] == 0.0:
+                return
+        confirmation = input(f"Voulez-vous clôturer {round_actuel['name']} ? (oui/non) ").strip().lower()
+        if confirmation != "oui":
+            print("Le round n'a pas été clôturé.")
+            return
+        round_actuel["end_time"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        print(f"Le {round_actuel['name']} a été clôturé à {round_actuel['end_time']}.")
+        data["rounds"][round_id] = round_actuel
+        data["current_round"] = round_id + 2 
+        self.tournois[str(tournoi_id)] = data
+        DAO.sauvegarder_file("tournois.json", self.tournois)
+        if round_id + 1 < data["number_of_rounds"]:
+            creer_nouveau = input("Voulez-vous créer le prochain round ? (oui/non) ").strip().lower()
+            if creer_nouveau == "oui":
+                self.creer_nouveau_round(tournoi_id, round_id + 2) 
+            else:
+                print("Le tournoi reste sur ce round.")
+        else:
+            print("Le tournoi est terminé !")
+            
+    def creer_nouveau_round(self, tournoi_id, round_id):
+        data = self.tournois.get(str(tournoi_id))
+        joueurs = data["players"]
+        joueurs = sorted(joueurs, key=lambda x: x["points"], reverse=True)
+        historique_matchs = set()
+        for round_data in data["rounds"]:
+            for match in round_data["matches"]:
+                joueur1, joueur2 = match[0][0], match[1][0]
+                historique_matchs.add(frozenset([joueur1, joueur2]))
+        matches = []
+        joueurs_restants = joueurs.copy()
+        while len(joueurs_restants) > 1:
+            joueur1 = joueurs_restants.pop(0)
+            for i, joueur2 in enumerate(joueurs_restants):
+                if frozenset([joueur1["Name"], joueur2["Name"]]) not in historique_matchs:
+                    matches.append([[joueur1["Name"], 0.0], [joueur2["Name"], 0.0]])
+                    joueurs_restants.pop(i)
+                    break
+        nouveau_round = {
+            "name": f"Round {round_id}",
+            "start_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "end_time": None,
+            "matches": matches
+        }
+        data["rounds"].append(nouveau_round)
+        data["current_round"] = round_id
+        self.tournois[str(tournoi_id)] = data
+        DAO.sauvegarder_file("tournois.json", self.tournois)
+

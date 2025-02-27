@@ -24,11 +24,7 @@ def main():
                 controleur.afficher_liste_match(tournoi_id, round_id)
                 match_id = View.menu_matchs()
                 controleur.afficher_match(tournoi_id, round_id, match_id)
-                resultat = View.resultat()
-                controleur.resultat(tournoi_id, round_id, match_id, resultat)
                 
-            if second_choix == "3":
-                controleur.afficher_liste_tournoi()
         elif choix == "2":
             second_choix = View.menu_joueur()
             if second_choix == "1":
