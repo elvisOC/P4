@@ -16,10 +16,9 @@ directory = actual_directory.parent
 
 class Controleur:
     def __init__(self):
-        self.joueurs = DAO.charger_file("players.json") or []
-        self.tournois = DAO.charger_file("tournois.json") or []
-        
-        
+        self.joueurs = DAO.charger_file("players.json") or {}
+        self.tournois = DAO.charger_file("tournois.json") or {}
+         
     def addplayer(self):
         infos = View.menu_creation_joueur()
         identifiant = infos[0]
@@ -44,9 +43,14 @@ class Controleur:
             
     def creer_tournoi(self):
         infos = View.menu_creation_tournoi()
-        try :
-            max_id = [int(key) for key in self.tournois.keys() if key.isdigit()]
-            new_tournament_id = str(max(max_id) + 1) if max_id else "1"
+        try:
+            if not isinstance(self.tournois, dict):
+                self.tournois = {}
+            if not self.tournois:
+                new_tournament_id = "1"
+            else:
+                max_id = max((int(key) for key in self.tournois.keys() if key.isdigit()), default=0)
+                new_tournament_id = str(max_id + 1)
             infos = list(infos)
             list_id = infos[-1]
             name_list = [{"ID": player_id, "Name": self.return_name(player_id), "points": 0.0} for player_id in list_id]
@@ -56,24 +60,25 @@ class Controleur:
             list_match = []
             copy_list = name_list[:]
             random.shuffle(copy_list)
-            for nbr in range(nbr_matchs):
+            for _ in range(nbr_matchs):
                 player1 = copy_list.pop(0)["Name"]
                 player2 = copy_list.pop(0)["Name"]
                 list_match.append([[player1, 0.0], [player2, 0.0]])
             round_data = [{
-                "name" : f"Round 1",
+                "name": "Round 1",
                 "start_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 "end_time": None,
                 "matches": list_match
-                }]
+            }]
             self.tournois[new_tournament_id] = tournoi.to_dict()
             self.tournois[new_tournament_id]["players"] = name_list
             self.tournois[new_tournament_id]["rounds"] = round_data
             self.tournois[new_tournament_id]["current_round"] = 1
             DAO.sauvegarder_file("tournois.json", self.tournois)
-            print("Tournoi enregistré")
+            print("Tournoi enregistré avec succès.")
+            self.afficher_liste_match(new_tournament_id, 0)
         except ValueError as e:
-            print(f"{e}")
+            print(f"Erreur lors de la création du tournoi : {e}")
         
     def afficher_liste_tournoi(self):
         data = self.tournois
@@ -81,7 +86,9 @@ class Controleur:
             {"ID" : key,
              "name" : tournoi["name"],
              "Date_debut": tournoi["start_date"],
-             "Date_fin" : tournoi["end_date"]
+             "Date_fin" : tournoi["end_date"],
+             "Nombre de rounds" : tournoi["number_of_rounds"],
+             "Tour actuel" : tournoi["current_round"]
             }
             for key, tournoi in data.items()]
         sorted_data = sorted(data, key=lambda x: int(x["ID"]))
@@ -160,7 +167,7 @@ class Controleur:
         data["rounds"][round_id]["matches"][match_id] = match
         self.tournois[str(tournoi_id)] = data
         DAO.sauvegarder_file("tournois.json", self.tournois)
-        self.afficher_match(tournoi_id, round_id, match_id)
+        self.afficher_liste_match(tournoi_id, round_id)
         
     def verifier_round_fini(self, tournoi_id, round_id):
         data = self.tournois.get(str(tournoi_id))
@@ -175,13 +182,14 @@ class Controleur:
         round_actuel["end_time"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         print(f"Le {round_actuel['name']} a été clôturé à {round_actuel['end_time']}.")
         data["rounds"][round_id] = round_actuel
-        data["current_round"] = round_id + 2 
+        data["current_round"] = round_id + 1
         self.tournois[str(tournoi_id)] = data
         DAO.sauvegarder_file("tournois.json", self.tournois)
         if round_id + 1 < data["number_of_rounds"]:
             creer_nouveau = input("Voulez-vous créer le prochain round ? (oui/non) ").strip().lower()
             if creer_nouveau == "oui":
-                self.creer_nouveau_round(tournoi_id, round_id + 2) 
+                self.creer_nouveau_round(tournoi_id, round_id + 1) 
+                #self.afficher_liste_match(tournoi_id, round_id + 1 )
             else:
                 print("Le tournoi reste sur ce round.")
         else:
@@ -198,7 +206,7 @@ class Controleur:
                 historique_matchs.add(frozenset([joueur1, joueur2]))
         matches = []
         joueurs_restants = joueurs.copy()
-        while len(joueurs_restants) > 1:
+        while joueurs_restants:
             joueur1 = joueurs_restants.pop(0)
             for i, joueur2 in enumerate(joueurs_restants):
                 if frozenset([joueur1["Name"], joueur2["Name"]]) not in historique_matchs:
@@ -206,13 +214,13 @@ class Controleur:
                     joueurs_restants.pop(i)
                     break
         nouveau_round = {
-            "name": f"Round {round_id}",
+            "name": f"Round {round_id + 1}",
             "start_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "end_time": None,
             "matches": matches
         }
         data["rounds"].append(nouveau_round)
-        data["current_round"] = round_id
+        data["current_round"] = round_id + 1 
         self.tournois[str(tournoi_id)] = data
         DAO.sauvegarder_file("tournois.json", self.tournois)
 
