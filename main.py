@@ -33,11 +33,8 @@ def main():
                 print(controleur.afficher_liste_player())
             elif second_choix == "3":
                 break
-                    
-        elif choix == "3":
-            choix = View.menu_rapport()
             
-        elif choix == "4":
+        elif choix == "3":
             choix = View.menu_quitter()
             break
 

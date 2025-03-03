@@ -3,8 +3,7 @@ class View:
     def home_menu():
         print("1.Tournoi")
         print("2.Joueurs")
-        print("3.Rapport")
-        print("4.Quitter")
+        print("3.Quitter")
         return input("Choississez un menu : ")
     
     def menu_tournoi():

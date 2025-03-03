@@ -167,7 +167,7 @@ class Controleur:
         data["rounds"][round_id]["matches"][match_id] = match
         self.tournois[str(tournoi_id)] = data
         DAO.sauvegarder_file("tournois.json", self.tournois)
-        self.afficher_liste_match(tournoi_id, round_id)
+        self.afficher_liste_match(tournoi_id, round_id + 1)
         
     def verifier_round_fini(self, tournoi_id, round_id):
         data = self.tournois.get(str(tournoi_id))

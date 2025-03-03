@@ -50,7 +50,6 @@ class Tournoi:
     rounds : dict
     current_round : int = 1
 
-    
     def __post_init__(self):
         
         if not self.name or not isinstance(self.name, str):
@@ -81,41 +80,7 @@ class Tournoi:
             "players" : self.players,
             "rounds" : self.rounds
         }
-        
-@dataclass
-class Tours:
-    numero : int
-    start_date : str
-    end_date :str
-    start_hour : str
-    end_hour : str
-    match : dict
-    
-    def __post_init__(self):
-        if not self.numero or not isinstance(self.numero, int):
-            raise ValueError("Le numero du tour doit être un chiffre non vide")
-        if not self.start_date or not re.match(r'\d\d-\d\d-\d\d\d\d$'):
-            raise ValueError("Vide ou mauvais format. Il doit être au format JJ-MM-AAAA")
-        if not self.end_date or not re.match(r'\d\d-\d\d-\d\d\d\d$'):
-            raise ValueError("Vide ou mauvais format. Il doit être au format JJ-MM-AAAA")    
-        if not self.start_hour or not re.match(r'\d\d:\d\d$'):
-            raise ValueError("L'heure doit être au format HH-MM")
-        if not self.end_hour or not re.match(r'\d\d:\d\d$'):
-            raise ValueError("L'heure doit être au format HH-MM") 
-        
-    def to_dict(self):
-        return {
-            "current_round" : self.numero,
-            "start_time" : self.start_date + self.start_hour,
-            "end_time" : self.end_date + self.end_hour,
-            "matches" : self.match
-        }
-        
-class Matchs:
-    def __init__(self):
-        pass
 
-  
 class DAO:
     def charger_file(file_name):
         parent_directory = pathlib.Path(__file__).parent.resolve()
