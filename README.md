@@ -2,7 +2,19 @@
 
 ### Présentation  
 
-Le programme sert à créer et gérer des parties d'échecs suivant les rounds suisses
+Le programme sert à créer et gérer des parties d'échecs suivant les rounds suisses  
+
+### Fonctionnement
+
+Le programme utilise deux fichiers json pour charger et sauvegarder les données, un pour les tournois et un pour les joueurs.
+Menu 1 pour les tournois  
+Menu 2 pour les joueurs  
+Dans le menu 1, vous pouvez soit créer un tournoi, soit consulter les tournois contenus dans le fichier.  
+Dans consulter tournois vous pouvez choisir un tournoi, ensuite un round puis un match.
+Si le match n'est pas terminé vous pouvez désignez le vainqueur. Quand tous les matchs d'un round sont terminés vous pouvez choisir de terminer le round.  
+Le programme créera le prochain round.  
+Dans le menu joueurs vous pouvez ajouter un joueur ou consulter la liste des joueurs.  
+
 
 ### Requirement  
 [Git](https://git-scm.com)  
