@@ -122,11 +122,12 @@ class Controleur:
         round_id = int(round_id) - 1
         matchs = data["rounds"][round_id]["matches"]
         match_list = [
-        [i, match[0][0], match[0][1], match[1][0], match[1][1]] 
-        for i, match in enumerate(matchs, start=1)
+            [i, match[0][0], match[0][1], match[1][0], match[1][1]] 
+            for i, match in enumerate(matchs, start=1)
         ]
-        table = pandas.DataFrame(match_list, columns=['Match', 'Joueur 1', 'Score 1', 'Joueur 2', 'Score 2'])
-        print(table.to_string(index=False))
+        headers = ["Match", "Joueur 1", "Score 1", "Joueur 2", "Score 2"]
+        table = tabulate(match_list, headers=headers, tablefmt="grid")
+        print(table)
         
     def afficher_match(self, tournoi_id, round_id, match_id):
         data = self.tournois.get(str(tournoi_id))
@@ -134,14 +135,12 @@ class Controleur:
         match_id = int(match_id) - 1
         match = data["rounds"][round_id]["matches"][match_id]
         match_data = [
-        [match[0][0], match[0][1]], [match[1][0], match[1][1]]]
-        table = pandas.DataFrame(match_data, columns=['Joueur', 'Score'])
+            [match[0][0], match[0][1]], [match[1][0], match[1][1]]]
+        table = tabulate(match_data, headers=["Joueur", "Score"], tablefmt="grid")
+        print(table)
         if match[0][1] == 0.0 and match[1][1] == 0.0:
-            print(table.to_string(index=False)) 
             resultat = View.resultat()
             self.ajouter_score(tournoi_id, round_id, match_id, resultat)
-        else :
-            print(table.to_string(index=False))
 
     def ajouter_score(self, tournoi_id, round_id, match_id, resultat):
         data = self.tournois.get(str(tournoi_id))
