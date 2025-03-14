@@ -31,7 +31,7 @@ pip install pandas
 #### Télécharger le script
 Avec git executer la commande git clone *lien du dépôt* dans un nouveau dossier (il faut l'indiquer dans la commande) 
 ```
-git clone github.com/ElvisOC/P4.git C:\users\%username%\Desktop\Nouveau
+git clone github.com/ElvisOC/P4.git
 ```
  
 
