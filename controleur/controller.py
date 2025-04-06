@@ -126,8 +126,7 @@ class Controleur:
             for i, match in enumerate(matchs, start=1)
         ]
         headers = ["Match", "Joueur 1", "Score 1", "Joueur 2", "Score 2"]
-        table = tabulate(match_list, headers=headers, tablefmt="grid")
-        print(table)
+        print(tabulate(match_list, headers=headers, tablefmt="grid"))
         
     def afficher_match(self, tournoi_id, round_id, match_id):
         data = self.tournois.get(str(tournoi_id))
@@ -162,22 +161,22 @@ class Controleur:
             joueurs[match[0][0]]["points"] += match[0][1]
         if match[1][0] in joueurs:
             joueurs[match[1][0]]["points"] += match[1][1]
-        self.verifier_round_fini(tournoi_id, round_id)
         data["rounds"][round_id]["matches"][match_id] = match
         self.tournois[str(tournoi_id)] = data
         DAO.sauvegarder_file("tournois.json", self.tournois)
-        self.afficher_liste_match(tournoi_id, round_id + 1)
+        self.verifier_round_fini(tournoi_id, round_id)
+        self.afficher_liste_match(tournoi_id, round_id)
         
     def verifier_round_fini(self, tournoi_id, round_id):
         data = self.tournois.get(str(tournoi_id))
         round_actuel = data["rounds"][round_id]
         for match in round_actuel["matches"]:
             if match[0][1] == 0.0 and match[1][1] == 0.0:
-                return
+                return 1
         confirmation = input(f"Voulez-vous clôturer {round_actuel['name']} ? (oui/non) ").strip().lower()
         if confirmation != "oui":
             print("Le round n'a pas été clôturé.")
-            return
+            return 
         round_actuel["end_time"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         print(f"Le {round_actuel['name']} a été clôturé à {round_actuel['end_time']}.")
         data["rounds"][round_id] = round_actuel
@@ -186,15 +185,22 @@ class Controleur:
         DAO.sauvegarder_file("tournois.json", self.tournois)
         if round_id + 1 < data["number_of_rounds"]:
             creer_nouveau = input("Voulez-vous créer le prochain round ? (oui/non) ").strip().lower()
-            if creer_nouveau == "oui":
-                self.creer_nouveau_round(tournoi_id, round_id + 1) 
-                #self.afficher_liste_match(tournoi_id, round_id + 1 )
+            if creer_nouveau == "oui": 
+                quand = input("Démarrer maintenant ? (oui.non) ").strip().lower()
+                if quand == "oui":
+                    self.creer_nouveau_round(tournoi_id, round_id + 1, datetime.now().strftime("%d-%M-%Y %H:%M"))
+                else:
+                    date = input("A quel date le round démarre ?")
+                    heure = input("A quel heure le round démarre ?")
+                    date_heure = date + heure
+                    self.creer_nouveau_round(tournoi_id, round_id, date_heure)
             else:
                 print("Le tournoi reste sur ce round.")
         else:
             print("Le tournoi est terminé !")
+
             
-    def creer_nouveau_round(self, tournoi_id, round_id):
+    def creer_nouveau_round(self, tournoi_id, round_id, date):
         data = self.tournois.get(str(tournoi_id))
         joueurs = data["players"]
         joueurs = sorted(joueurs, key=lambda x: x["points"], reverse=True)
@@ -214,7 +220,7 @@ class Controleur:
                     break
         nouveau_round = {
             "name": f"Round {round_id + 1}",
-            "start_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "start_time": date,
             "end_time": None,
             "matches": matches
         }

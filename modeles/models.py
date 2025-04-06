@@ -88,7 +88,7 @@ class DAO:
         file_path = os.path.join(directory, "data", file_name)
         if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
             with open(file_path, 'r', encoding='utf-8') as file:
-               return json.load(file)
+                return json.load(file)
         return {}
 
     def sauvegarder_file(file_name, data):

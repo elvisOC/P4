@@ -1,5 +1,6 @@
 from controleur.controller import Controleur
 from vue.view import View
+from modeles.models import DAO
 import pathlib
 import os
 import json
@@ -22,8 +23,14 @@ def main():
                 controleur.afficher_liste_rounds(tournoi_id)
                 round_id = View.menu_rounds()
                 controleur.afficher_liste_match(tournoi_id, round_id)
-                match_id = View.menu_matchs()
-                controleur.afficher_match(tournoi_id, round_id, match_id)
+                while controleur.verifier_round_fini(tournoi_id, int(round_id) - 1) == 1 :
+                    match_id = View.menu_matchs()
+                    controleur.afficher_match(tournoi_id, round_id, match_id)
+                    data = DAO.charger_file("tournois.json")
+                    tournoi = data.get(str(tournoi_id))
+                    round = tournoi["rounds"][int(round_id) - 1]
+                    if round["end_time"] is not None :
+                        break
                 
         elif choix == "2":
             second_choix = View.menu_joueur()
