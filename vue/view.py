@@ -35,7 +35,7 @@ class View:
         location = input("Lieu du tournoi : ")
         start_date = input("Date de début (JJ-MM-AAAA) : ")
         end_date = input("Date de fin (JJ-MM-AAAA) : ")
-        number_of_rounds = int(input(f"Nombre de tours (4 par defaut) : "))
+        number_of_rounds = int(input("Nombre de tours (4 par defaut) : "))
         description = input("Description : ")
         players_nbr = int(input("Nombre de joueurs : "))
         list_player = View.menu_liste_players(players_nbr)
@@ -46,7 +46,7 @@ class View:
 
     def menu_liste_players(players_nbr):
         list_player = []
-        for nbr in range(1, players_nbr + 1):  
+        for nbr in range(1, players_nbr + 1):
             player = input(f"Identifiant joueur{nbr} : ")
             list_player.append(player)
         return list_player
@@ -61,7 +61,4 @@ class View:
         return input("Selectionner le match : ")
 
     def resultat():
-        return input ("Vainqueur ? (1 pour joueur 1, 2 pour joueur 2, 3 pour match nul) : ")
-
-
-            
+        return input("Vainqueur ? (1 pour joueur 1, 2 pour joueur 2, 3 pour match nul) : ")

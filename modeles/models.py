@@ -1,57 +1,54 @@
 import json
 import os
-import pandas as pd
 import pathlib
-from operator import itemgetter
-from tabulate import tabulate
 import re
-from datetime import datetime
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+
 
 @dataclass
 class Player:
-    identifiant : str
-    surname : str
-    name : str
-    birthdate : str
+    identifiant: str
+    surname: str
+    name: str
+    birthdate: str
 
-        
     def __post_init__(self):
-        
+
         if not re.match(r"^[A-Z][A-Z]\d\d\d\d\d$", self.identifiant):
             raise ValueError("L'identifiant n'est pas au bon format")
-        
+
         if not self.surname or not isinstance(self.surname, str):
             raise ValueError("Le prénom doit être une chaine non vide")
-        
+
         if not self.name or not isinstance(self.name, str):
             raise ValueError("Le nom doit être une chaine non vide")
-        
+
         if not re.match(r"\d\d-\d\d-\d\d\d\d$", self.birthdate):
             raise ValueError("La date de naissance n'est pas au format JJ-MM-AAAA")
-        
+
     def to_dict(self):
         return {
-            "ID" : self.identifiant,
-            "Name" : self.surname,
-            "Surname" : self.name,
-            "Birthdate" : self.birthdate
+            "ID": self.identifiant,
+            "Name": self.surname,
+            "Surname": self.name,
+            "Birthdate": self.birthdate
         }
-            
+
+
 @dataclass
 class Tournoi:
-    name : str
-    location : str
-    date_debut : str
-    date_fin : str
-    nb_tours : int 
-    description : str
-    players : dict
-    rounds : dict
-    current_round : int = 1
+    name: str
+    location: str
+    date_debut: str
+    date_fin: str
+    nb_tours: int
+    description: str
+    players: dict
+    rounds: dict
+    current_round: int = 1
 
     def __post_init__(self):
-        
+
         if not self.name or not isinstance(self.name, str):
             raise ValueError("Le nom doit être une chaine non vide")
         if not self.location or not isinstance(self.location, str):
@@ -66,20 +63,20 @@ class Tournoi:
             raise ValueError("Le nombres de tours doit être en chiffre")
         if not self.description or not isinstance(self.description, str):
             raise ValueError("La description doit être une chaine non vide")
-        
-        
+
     def to_dict(self):
         return {
-            "name" : self.name,
-            "location" : self.location,
-            "start_date" : self.date_debut,
-            "end_date" : self.date_fin,
-            "number_of_rounds" : self.nb_tours,
-            "current_round" : self.current_round,
-            "description" : self.description,
-            "players" : self.players,
-            "rounds" : self.rounds
+            "name": self.name,
+            "location": self.location,
+            "start_date": self.date_debut,
+            "end_date": self.date_fin,
+            "number_of_rounds": self.nb_tours,
+            "current_round": self.current_round,
+            "description": self.description,
+            "players": self.players,
+            "rounds": self.rounds
         }
+
 
 class DAO:
     def charger_file(file_name):
@@ -97,5 +94,3 @@ class DAO:
         file_path = os.path.join(directory, "data", file_name)
         with open(file_path, 'w') as file:
             json.dump(data, file, indent=4, ensure_ascii=False)
-            
-#print(DAO.charger_file('players.json'))
