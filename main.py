@@ -19,8 +19,12 @@ def main():
             if second_choix == "2":
                 controleur.afficher_liste_tournoi()
                 tournoi_id = View.menu_tournoi_ID()
+                if tournoi_id.strip().lower() == "q":
+                    continue
                 controleur.afficher_liste_rounds(tournoi_id)
                 round_id = View.menu_rounds()
+                if round_id.strip().lower() == "q":
+                    continue
                 controleur.afficher_liste_match(tournoi_id, round_id)
                 while controleur.verifier_round_fini(tournoi_id, int(round_id) - 1) == 1:
                     match_id = View.menu_matchs()
@@ -30,6 +34,8 @@ def main():
                     round = tournoi["rounds"][int(round_id) - 1]
                     if round["end_time"] is not None:
                         break
+                    elif match_id.strip().lower() == "q":
+                        continue
 
         elif choix == "2":
             second_choix = View.menu_joueur()

@@ -52,13 +52,13 @@ class View:
         return list_player
 
     def menu_tournoi_ID():
-        return input("Entrez l'ID du tournoi : ")
+        return input("Entrez l'ID du tournoi (q pour quitter) : ")
 
     def menu_rounds():
-        return input("Entrez le numéro du round : ")
+        return input("Entrez le numéro du round (q pour quitter) : ")
 
     def menu_matchs():
-        return input("Selectionner le match : ")
+        return input("Selectionner le match (q pour quitter): ")
 
     def resultat():
         return input("Vainqueur ? (1 pour joueur 1, 2 pour joueur 2, 3 pour match nul) : ")
