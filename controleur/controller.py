@@ -15,12 +15,13 @@ class Controleur:
     def __init__(self):
         self.joueurs = DAO.charger_file("players.json") or {}
         self.tournois = DAO.charger_file("tournois.json") or {}
+        self.vue = View
 
     def addplayer(self):
-        infos = View.menu_creation_joueur()
+        infos = self.vue.menu_creation_joueur()
         identifiant = infos[0]
         if identifiant in self.joueurs:
-            print("Joueur déjà enregistré")
+            self.vue.register_player()
         else:
             try:
                 max_id = [int(key) for key in self.joueurs.keys() if key.isdigit()]
@@ -28,18 +29,18 @@ class Controleur:
                 joueur = Player(*infos)
                 self.joueurs[new_player_id] = joueur.to_dict()
                 DAO.sauvegarder_file("players.json", self.joueurs)
-                print("Joueur enregistré")
+                self.vue.register_player()
             except ValueError as e:
-                print(f"{e}")
+                self.vue.afficher_message(e)
 
     def afficher_liste_player(self):
         data = self.joueurs
         data = [v for v in data.values()]
         sorted_data = sorted(data, key=itemgetter('Surname'))
-        return tabulate(sorted_data, headers="keys", tablefmt="grid")
+        self.vue.print_table(sorted_data, "keys")
 
     def creer_tournoi(self):
-        infos = View.menu_creation_tournoi()
+        infos = self.vue.menu_creation_tournoi()
         try:
             if not isinstance(self.tournois, dict):
                 self.tournois = {}
@@ -72,10 +73,10 @@ class Controleur:
             self.tournois[new_tournament_id]["rounds"] = round_data
             self.tournois[new_tournament_id]["current_round"] = 1
             DAO.sauvegarder_file("tournois.json", self.tournois)
-            print("Tournoi enregistré avec succès.")
+            self.vue.afficher_message("Tournoi enregistré avec succès.")
             self.afficher_liste_match(new_tournament_id, 0)
         except ValueError as e:
-            print(f"Erreur lors de la création du tournoi : {e}")
+            self.vue.afficher_message("Erreur lors de la création du tournoi : {e}")
 
     def afficher_liste_tournoi(self):
         data = self.tournois
@@ -89,7 +90,7 @@ class Controleur:
             }
             for key, tournoi in data.items()]
         sorted_data = sorted(data, key=lambda x: int(x["ID"]))
-        print(tabulate(sorted_data, headers="keys", tablefmt="grid"))
+        self.vue.print_table(sorted_data, "keys")
 
     def return_name(self, player_id):
         for player_key, player in self.joueurs.items():
@@ -112,7 +113,7 @@ class Controleur:
             row = [f"Round {round_index}"] + [f"{match[0][0]} ({match[0][1]}) vs {match[1][0]} ({match[1][1]})" for match in round_info["matches"]]
             table.append(row)
         headers = ["Round"] + [f"Match {i+1}" for i in range(len(rounds[0]["matches"]))] if rounds else ["Round"]
-        print(tabulate(table, headers=headers, tablefmt="grid"))
+        self.vue.print_table(table, headers)
 
     def afficher_liste_match(self, tournoi_id, round_id):
         data = self.tournois.get(str(tournoi_id))
@@ -123,7 +124,7 @@ class Controleur:
             for i, match in enumerate(matchs, start=1)
         ]
         headers = ["Match", "Joueur 1", "Score 1", "Joueur 2", "Score 2"]
-        print(tabulate(match_list, headers=headers, tablefmt="grid"))
+        self.vue.print_table(match_list, headers)
 
     def afficher_match(self, tournoi_id, round_id, match_id):
         data = self.tournois.get(str(tournoi_id))
@@ -132,10 +133,10 @@ class Controleur:
         match = data["rounds"][round_id]["matches"][match_id]
         match_data = [
             [match[0][0], match[0][1]], [match[1][0], match[1][1]]]
-        table = tabulate(match_data, headers=["Joueur", "Score"], tablefmt="grid")
-        print(table)
+        headers=["Joueur", "Score"]
+        self.vue.print_table(match_data, headers)
         if match[0][1] == 0.0 and match[1][1] == 0.0:
-            resultat = View.resultat()
+            resultat = self.vue.resultat()
             self.ajouter_score(tournoi_id, round_id, match_id, resultat)
 
     def ajouter_score(self, tournoi_id, round_id, match_id, resultat):
@@ -153,7 +154,7 @@ class Controleur:
             match[0][1] += 0.5
             match[1][1] += 0.5
         else:
-            print("Erreur : Valeur invalide pour vainqueur. Utilisez 1, 2 ou 3.")
+            self.vue.afficher_message("Erreur : Valeur invalide pour vainqueur. Utilisez 1, 2 ou 3.")
         if match[0][0] in joueurs:
             joueurs[match[0][0]]["points"] += match[0][1]
         if match[1][0] in joueurs:
@@ -172,29 +173,27 @@ class Controleur:
                 return 1
         confirmation = input(f"Voulez-vous clôturer {round_actuel['name']} ? (oui/non) ").strip().lower()
         if confirmation != "oui":
-            print("Le round n'a pas été clôturé.")
+            self.vue.afficher_message("Le round n'a pas été clôturé.")
             return
         round_actuel["end_time"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        print(f"Le {round_actuel['name']} a été clôturé à {round_actuel['end_time']}.")
+        self.vue.round_fini(round_actuel['name'], round_actuel['end_time'])
         data["rounds"][round_id] = round_actuel
         data["current_round"] = round_id + 1
         self.tournois[str(tournoi_id)] = data
         DAO.sauvegarder_file("tournois.json", self.tournois)
         if round_id + 1 < data["number_of_rounds"]:
-            creer_nouveau = input("Voulez-vous créer le prochain round ? (oui/non) ").strip().lower()
+            creer_nouveau = self.vue.next_round()
             if creer_nouveau == "oui":
-                quand = input("Démarrer maintenant ? (oui.non) ").strip().lower()
+                quand = self.vue.start_now()
                 if quand == "oui":
                     self.creer_nouveau_round(tournoi_id, round_id + 1, datetime.now().strftime("%d-%M-%Y %H:%M"))
                 else:
-                    date = input("A quel date le round démarre ?")
-                    heure = input("A quel heure le round démarre ?")
-                    date_heure = date + heure
+                    date_heure = self.vue.when
                     self.creer_nouveau_round(tournoi_id, round_id, date_heure)
             else:
-                print("Le tournoi reste sur ce round.")
+                self.vue.afficher_message("Le tournoi reste sur ce round.")
         else:
-            print("Le tournoi est terminé !")
+            self.vue.afficher_message("Le tournoi est terminé !")
 
     def creer_nouveau_round(self, tournoi_id, round_id, date):
         data = self.tournois.get(str(tournoi_id))

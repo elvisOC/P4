@@ -1,3 +1,4 @@
+from tabulate import tabulate
 class View:
 
     def home_menu():
@@ -44,7 +45,7 @@ class View:
     def menu_quitter():
         print("Au revoir !")
 
-    def menu_liste_players(players_nbr):
+    def menu_liste_players(self, players_nbr):
         list_player = []
         for nbr in range(1, players_nbr + 1):
             player = input(f"Identifiant joueur{nbr} : ")
@@ -62,3 +63,27 @@ class View:
 
     def resultat():
         return input("Vainqueur ? (1 pour joueur 1, 2 pour joueur 2, 3 pour match nul) : ")
+    
+    def register_player():
+        return print("Joueur déjà enregistré")
+    
+    def print_table(sorted_data, header):
+        print(tabulate(sorted_data, headers=header, tablefmt="grid"))
+    
+    def round_fini(rd_name, rd_time):
+        print(f"Le {rd_name} a été clôturé à {rd_time}.")
+        
+    def next_round():
+        return input("Voulez-vous créer le prochain round ? (oui/non) ").strip().lower()
+    
+    def start_now():
+        return input("Démarrer maintenant ? (oui.non) ").strip().lower()
+    
+    def when():
+        date = input("A quel date le round démarre ?")
+        heure = input("A quel heure le round démarre ?")
+        return date + heure
+    
+    def afficher_message(message):
+        print(message)
+        
