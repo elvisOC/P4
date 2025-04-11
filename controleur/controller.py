@@ -76,7 +76,7 @@ class Controleur:
             self.vue.afficher_message("Tournoi enregistré avec succès.")
             self.afficher_liste_match(new_tournament_id, 0)
         except ValueError as e:
-            self.vue.afficher_message("Erreur lors de la création du tournoi : {e}")
+            self.vue.afficher_message(f"Erreur lors de la création du tournoi : {e}")
 
     def afficher_liste_tournoi(self):
         data = self.tournois
@@ -171,6 +171,8 @@ class Controleur:
         for match in round_actuel["matches"]:
             if match[0][1] == 0.0 and match[1][1] == 0.0:
                 return 1
+            elif round_actuel["end_time"] is not None:
+                return
         confirmation = input(f"Voulez-vous clôturer {round_actuel['name']} ? (oui/non) ").strip().lower()
         if confirmation != "oui":
             self.vue.afficher_message("Le round n'a pas été clôturé.")

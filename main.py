@@ -42,7 +42,7 @@ def main():
             if second_choix == "1":
                 print(controleur.addplayer())
             elif second_choix == "2":
-                print(controleur.afficher_liste_player())
+                controleur.afficher_liste_player()
             elif second_choix == "3":
                 break
 
